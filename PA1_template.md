@@ -10,6 +10,7 @@ First lets load the data and massage it, the steps are:
 * Generate a separate data frame with the sum of steps per day;
 * Generate another dataset with the mean of steps across all days for every interval;
 
+
 ```r
 library(plyr)
 activities <- read.csv("activity.csv", colClasses=c("integer", "Date", "integer"))
@@ -17,14 +18,14 @@ activities$weekday <- weekdays(activities$date)
 completes <- complete.cases(activities)
 cleanActivities <- activities[completes,]
 activitiesPerDay <- ddply(
-    cleanActivities,
-    .(date),
-    summarise,
+    cleanActivities, 
+    .(date), 
+    summarise, 
     steps=sum(steps))
 averagePerInterval <- ddply(
-    cleanActivities,
-    .(interval),
-    summarise,
+    cleanActivities, 
+    .(interval), 
+    summarise, 
     steps=mean(steps))
 ```
 
@@ -39,7 +40,7 @@ medianSteps <- median(activitiesPerDay$steps)
 hist(activitiesPerDay$steps, main="Histogram of steps per day", xlab="Steps per day", breaks=10)
 ```
 
-![plot of chunk unnamed-chunk-2](figure/unnamed-chunk-2.png)
+![plot of chunk unnamed-chunk-2](figure/unnamed-chunk-2.png) 
 
 The mean of steps taken per day is *1.0766 &times; 10<sup>4</sup>* and the median is *10765*.
 
@@ -55,7 +56,7 @@ maxIntervalSteps <- averagePerInterval[maxIntervalPos,]$steps
 plot(averagePerInterval$interval,  averagePerInterval$steps, type="l", main="Average of steps across all days for every interval", xlab="5 minutes intervals", ylab="Average steps taken")
 ```
 
-![plot of chunk unnamed-chunk-3](figure/unnamed-chunk-3.png)
+![plot of chunk unnamed-chunk-3](figure/unnamed-chunk-3.png) 
 
 And from here we can see that the interval with more steps in average was *835* that had *206.1698* steps on average.
 
@@ -73,13 +74,13 @@ To include values for the missing rows, we can use the means calculated for ever
 
 ```r
 averagePerIntervalAndWeekday <- ddply(
-    cleanActivities,
-    .(interval, weekday),
-    summarise,
+    cleanActivities, 
+    .(interval, weekday), 
+    summarise, 
     steps=mean(steps))
 incompletes <- activities[!completes,]
 stepsFor <- function( interval, weekday ) {
-  averagePerIntervalAndWeekday[averagePerIntervalAndWeekday$interval == interval &
+  averagePerIntervalAndWeekday[averagePerIntervalAndWeekday$interval == interval & 
                                  averagePerIntervalAndWeekday$weekday == weekday,]$steps
 }
 incompletes$steps <- mapply(stepsFor, incompletes$interval, incompletes$weekday)
@@ -91,16 +92,16 @@ We have now filled in the missing steps values with means from intervals for the
 
 ```r
 filledActivitiesPerDay <- ddply(
-    filledActivities,
-    .(date),
-    summarise,
+    filledActivities, 
+    .(date), 
+    summarise, 
     steps=sum(steps))
 filledMeanSteps <- mean(filledActivitiesPerDay$steps)
 filledMedianSteps <- median(filledActivitiesPerDay$steps)
 hist(filledActivitiesPerDay$steps, main="Histogram of steps per day (with filled data)", xlab="Steps per day", breaks=10)
 ```
 
-![plot of chunk unnamed-chunk-6](figure/unnamed-chunk-6.png)
+![plot of chunk unnamed-chunk-6](figure/unnamed-chunk-6.png) 
 
 And now the mean of steps taken per day is *1.0821 &times; 10<sup>4</sup>* (difference from clean dataset is 55.0209) and the median is *1.1015 &times; 10<sup>4</sup>* (difference from clean dataset is 250).
 
@@ -122,9 +123,9 @@ isWeekend <- function( weekday ) {
 }
 filledActivities$dayType <- mapply(isWeekend, filledActivities$weekday)
 filledAveragePerInterval <- ddply(
-    filledActivities,
-    .(interval),
-    summarise,
+    filledActivities, 
+    .(interval), 
+    summarise, 
     steps=mean(steps))
 ```
 
@@ -136,6 +137,6 @@ library(lattice)
 xyplot(steps ~ interval | dayType, filledAveragePerInterval, layout = c(1, 2), xlab="Interval", ylab="Number of steps", type="l")
 ```
 
-![plot of chunk unnamed-chunk-8](figure/unnamed-chunk-8.png)
+![plot of chunk unnamed-chunk-8](figure/unnamed-chunk-8.png) 
 
 And while there are small differences, doesn't look like there's a lot of differences in the general patterns of steps between weekdays and weekends.
